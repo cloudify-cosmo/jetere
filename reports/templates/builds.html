@@ -1,0 +1,28 @@
+{%  extends 'base.html' %}
+
+{% block content %}
+    <h2>Builds</h2>
+        <span>Show: </span>
+        <button type="button" class="btn btn-default" onclick="window.location = '{% url 'builds' current_job.id %}';">All</button>
+        <button type="button" class="btn btn-info" onclick="window.location = '{% url 'timer_builds' current_job.id %}';">Timer</button>
+        <span class="filter">Filter: {{filter}}</span>
+        <br/><br/>
+    <table class="table table-hover table-striped">
+        <tr class="table-header">
+            <td style="width: 5%;">#</td>
+            <td style="width: 10%;">Result</td>
+            <td>Started Time</td>
+            <td>Started By</td>
+            <td style="width: 10%;">Duration</td>
+        </tr>
+    {% for build in builds %}
+        <tr class="builds-table-row" onclick="window.location = '{% url 'failed&skipped_tests' build.id %}';">
+            <td>{{ build.number }}</td>
+            <td>{% if build.result == 'SUCCESS' %}<span class="label label-success">PASSED</span>{% elif build.result == 'FAILURE' %}<span class="label label-danger">FAILED</span>{% elif build.result == 'ABORTED' %}<span class="label label-default">ABORTED</span>{% elif build.building %}<span class="label label-info">IN PROGRESS</span>{% endif %}</td>
+            <td width="25%">{{ build.timestamp |date:'l, d-m-Y , H:i'}}</td>
+            <td>{{ build.started_by }}</td>
+            <td>{{ build.duration }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+{% endblock %}

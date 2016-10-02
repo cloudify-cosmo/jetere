@@ -1,0 +1,68 @@
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    /*border: 2px solid red;*/
+    margin: 0;
+    padding: 0;
+}
+
+.page-header {
+    background-color: #337ab7;
+    margin-top: 0;
+    padding: 20px 20px 20px 40px;
+    color: white;
+}
+
+.page-header a:visited {
+    color: white;
+}
+
+.page-header a:hover {
+    color: white;
+    text-decoration: none;
+}
+
+
+.left-menu {
+    padding-left: 25px;
+    /*border: 1px solid blue;*/
+}
+
+.builds-table-row:hover, .tests-table-row:hover {
+    cursor: pointer;
+}
+
+.table-header td {
+    /*background: #337ab7;*/
+    /*color: white;*/
+    font-weight: bold;
+}
+
+.table-header td .success {
+    background: rgb(223, 240, 216);
+}
+
+.tests-report-suite-name {
+    font-weight: bold;
+}
+
+.test-panel {
+    /*padding-top: 10px;*/
+}
+
+mark.success {
+    background: rgb(223, 240, 216);
+}
+
+mark.danger {
+    background: rgb(242, 222, 222);
+}
+
+#content {
+
+    /*border: 2px solid magenta;*/
+}
+
+.filter {
+    padding-left:68px
+}

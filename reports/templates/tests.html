@@ -1,0 +1,54 @@
+{%  extends 'base.html' %}
+
+{% block content %}
+    <h2>Tests</h2>
+    {% if current_build.building %}
+        <p>Tests are not available for in progress builds.</p>
+    {% else %}
+        <span>Show: </span>
+        <button type="button" class="btn btn-default" onclick="window.location = '{% url 'tests' current_build.id %}';">All</button>
+        <button type="button" class="btn btn-danger" onclick="window.location = '{% url 'failed&skipped_tests' current_build.id %}';">Failed & Skipped</button>
+        <span class="filter">Filter: {{filter}}</span>
+        <br/><br/>
+
+        <div class="panel panel-default">
+         <div class="panel-heading"><h4><strong>Tests summary</strong></h4></div>
+            <table class="table table-hover table-striped">
+                <td width="10%"><span class="glyphicon glyphicon-cloud" style="color: #2aabd2"></span><strong> Total: {{ tests_summary.total}}</strong></td>
+                <td width="14%"><span class="glyphicon glyphicon-ok" style="color: green" aria-hidden="true"></span><strong> Passed: {{ tests_summary.passed}}&emsp;<span class="glyphicon glyphicon-scale" style="color: green"></span> {% widthratio tests_summary.passed tests_summary.total 100 %}%</strong></td>
+                <td><span class="glyphicon glyphicon-remove" style="color: red" aria-hidden="true"></span><strong> Failed & Skipped: {{ tests_summary.failed}}&emsp;<span class="glyphicon glyphicon-scale" style="color: red"></span> {% widthratio tests_summary.failed tests_summary.total 100 %}%</strong></td>
+            </table>
+            </div>
+
+        {% for suite_name, suite_info in suites.items %}
+{#            <div class="panel panel-{% if suite_info.total == suite_info.passed %}success{% else %}danger{% endif %}">#}
+            <div class="panel panel-default">
+                <div class="panel-heading"><strong>{{ suite_name }} - {{ suite_info.passed }}/{{ suite_info.total }}</strong></div>
+                <table class="table table-hover table-striped">
+{#                    <tr class="table-header {% if suite_info.total == suite_info.passed %}success{% else %}danger{% endif %}">#}
+                    <tr class="table-header">
+                        <td></td>
+                        <td>Name</td>
+                        <td style="width: 10%;">Duration</td>
+                    </tr>
+                    {% for test in suite_info.tests %}
+                        <tr onclick="window.location = '{% url 'logs' test.id %}';" class="tests-table-row {% if test.status == 'PASSED' or test.status == 'FIXED' %}success{% elif test.status == 'FAILED' or test.status == 'REGRESSION' %}danger{% elif test.status == 'SKIPPED' %}warning{% endif %}">
+{#                        <tr onclick="window.location = '{% url 'logs' test.id %}';" class="tests-table-row">#}
+                            {% if test.status == 'PASSED' or test.status == 'FIXED' %}
+                                <td width="5%"><span class="glyphicon glyphicon-ok" style="color: green" aria-hidden="true"></span></td>
+                            {% elif test.status == 'FAILED' or test.status == 'REGRESSION' %}
+                                <td width="5%"><span class="glyphicon glyphicon-remove" style="color: red" aria-hidden="true"></span></td>
+                            {% elif test.status == 'SKIPPED' %}
+                                <td width="5%"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></td>
+                            {% else %}
+                                <td></td>
+                            {% endif %}
+                            <td>{{ test.name }}</td>
+                            <td>{{ test.duration }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endblock %}
