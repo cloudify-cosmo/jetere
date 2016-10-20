@@ -1,5 +1,39 @@
 {%  extends 'base.html' %}
 
 {% block content %}
-<p>What would be interesting to display here..?</p>
+    <h2>Latest Nightly Builds</h2>
+    <br/>
+    <table class="table table-hover">
+        <tr class="table-header">
+            <td>Job Name</td>
+            <td>Build Number</td>
+            <td>Result</td>
+            <td>Success Rate</td>
+            <td>Time</td>
+            <td>Duration</td>
+        </tr>
+        {% load app_filters %}
+        {% for job in jobs_list %}
+            <tr class="{% if job.nightly_build and not job.nightly_build.building %}clickable-table-row{% endif %}
+                {% if job.nightly_build.passed %}text-success success{% elif job.nightly_build.failed %}text-danger danger{% elif job.nightly_build.building %}text-info info{% else %}text-warning warning{% endif %}"
+                {% if job.nightly_build %}onclick="window.location = '{% url 'build' job.name job.nightly_build.number %}';"{% endif %}>
+                <td>{{ job.displayName | pretty_string }}</td>
+                <td>{{ job.nightly_build.number }}</td>
+                <td>{% if job.nightly_build.building %}BUILDING{% else %}{{ job.nightly_build.result }}{% endif %}</td>
+                <td>
+                    {% if job.nightly_build.report %}
+                        {{ job.nightly_build.report.passed_percentage }} % ({{ job.nightly_build.report.passed_count }}/{{ job.nightly_build.report.total_count }})
+                    {% elif job.nightly_build %}
+                        0 % (0/0)
+                    {% endif %}
+                </td>
+                <td>{{ job.nightly_build.started_at | date:'H:i - d/m/Y' }}</td>
+                <td>{{ job.nightly_build.duration_str }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    <br/>
+    <h2>Unit Tests</h2>
+    <p>...</p>
+
 {% endblock %}

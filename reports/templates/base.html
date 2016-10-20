@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Cloudify Tests</title>
+    <title>cfyReports</title>
 
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
@@ -16,28 +16,49 @@
     </script>
 
     {% load static %}
+    {% load app_filters %}
 
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
 </head>
 <body>
-    <div class="page-header">
-        <h1><a href="{% url 'index' %}">Cloudify Tests</a></h1>
-        <span class="label label-info">Last Update: {{ last_update|time:'G:i' }}</span>
-    </div>
 
-    <div class="col-sm-2 left-menu">
-        <h2>Jobs</h2>
-        <ul class="nav nav-pills nav-stacked">
-            {% for job in jobs %}
-                <li><a href="{% url 'timer_builds' job.id %}" class="list-group-item {% if current_job.id == job.id %}active{% endif %}">{{ job.name }}</a></li>
-            {% endfor %}
-        </ul>
-    </div>
-    <div id="content" class="col-sm-9">
+    <nav class="navbar navbar-default navbar-inverse navbar-static-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">
+                    <img alt="Brand" src="{% static 'images/cfy.png' %}">
+                </a>
+{#                <p class="navbar-text">CFY</p>#}
+            </div>
+            <ul class="nav navbar-nav">
+                <li class="{% if not job_name %}active{% endif %}"><a href="{% url 'index' %}">Home</a></li>
+                {% for job in jobs_list %}
+                    <li class="{% if job_name == job.name %}active{% endif %}">
+                        <a href="{% url 'job' job.name %}">{{ job.displayName|pretty_string }}</a>
+
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </nav>
+
+{#    <div class="page-header">#}
+{#        <h2><a href="{% url 'index' %}">cfy-jetere!</a></h2>#}
+{#    </div>#}
+
+{#    <div id="jobs">#}
+{#        {% for job in jobs_list %}#}
+{#            <a href="{% url 'builds2' job.name %}">#}
+{#                <span class="label label-primary">{{ job.displayName }}</span>#}
+{#            </a>#}
+{#        {% endfor %}#}
+{#    </div>#}
+
+    <div id="content">
         {% if current_job %}
         <ol class="breadcrumb">
-            <li><a href="{% url 'builds' current_job.id %}">{{ current_job.name }}</a></li>
+            <li><a href="{% url 'job' current_job.id %}">{{ current_job.name }}</a></li>
             {% if current_build %}<li><a href="{% url 'tests' current_build.id %}">{{ current_build.number }}</a></li>{% endif %}
             {% if current_test %}<li><a href="{% url 'logs' current_test.id %}">{{ current_test.name }}</a></li>{% endif %}
         </ol>

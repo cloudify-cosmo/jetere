@@ -7,9 +7,9 @@ body {
 }
 
 .page-header {
-    background-color: #337ab7;
+    background-color: #000000;
     margin-top: 0;
-    padding: 20px 20px 20px 40px;
+    padding: 1px 1px 10px 10px;
     color: white;
 }
 
@@ -28,7 +28,7 @@ body {
     /*border: 1px solid blue;*/
 }
 
-.builds-table-row:hover, .tests-table-row:hover {
+.builds-table-row:hover, .tests-table-row:hover, .clickable-table-row:hover {
     cursor: pointer;
 }
 
@@ -58,11 +58,36 @@ mark.danger {
     background: rgb(242, 222, 222);
 }
 
-#content {
-
+#content, #jobs {
+    padding: 0px 20px 0px 20px;
     /*border: 2px solid magenta;*/
 }
 
 .filter {
     padding-left:68px
 }
+
+#jobs span {
+    padding: 10px;
+    font-size: 12px;
+}
+
+.navbar-brand img {
+    width: 24px;
+    vertical-align: middle;
+    display: inline;
+}
+
+td.status, td.duration {
+    width: 6%;
+    text-align: center;
+}
+
+td.name {
+    width: 30%;
+}
+
+.suite {
+    padding: 5px 10px 5px 10px;
+}
+

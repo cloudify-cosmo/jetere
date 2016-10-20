@@ -3,7 +3,7 @@ import os
 
 from django.core.management.base import BaseCommand
 
-from reports import models
+from jetere import jenkins
 
 CONFIG_DIR_PATH = os.path.expanduser('~/.jetere')
 CONFIG_FILE_PATH = os.path.join(CONFIG_DIR_PATH, 'config.json')
@@ -15,17 +15,8 @@ def load_jenkins_configuration_from_file():
             return json.load(f)
 
 
-def update_jenkins_configuration_in_db(config,
-                                       config_model=models.Configuration()):
-    config_model.jenkins_url = config['jenkins_url']
-    config_model.jenkins_username = config['jenkins_username']
-    config_model.jenkins_password = config['jenkins_password']
-    config_model.save()
-    return config_model
-
-
 class Command(BaseCommand):
-    help = 'Configure jetere'
+    help = 'Configure Jenkins'
 
     def add_arguments(self, parser):
         super(Command, self).add_arguments(parser)
@@ -57,13 +48,19 @@ class Command(BaseCommand):
         with open(CONFIG_FILE_PATH, 'w') as f:
             f.write(json.dumps(config, indent=2))
 
-        conf_obj = models.Configuration.objects.all()
-        if len(conf_obj) == 0:
-            self.stdout.write('Creating a new configuration in DB...')
-            update_jenkins_configuration_in_db(config)
-        else:
+        self.stdout.write('Verifying jenkins connectivity...')
+        client = jenkins.Client(config['jenkins_url'],
+                                config['jenkins_username'],
+                                config['jenkins_password'])
+        try:
+            client.get_job()
             self.stdout.write(
-                'Existing configuration found in DB, updating...')
-            update_jenkins_configuration_in_db(config, conf_obj[0])
-
-        self.stdout.write(self.style.SUCCESS('Done.'))
+                    self.style.SUCCESS('Successfully connected to jenkins '
+                                       'server. done!'))
+        except Exception as e:
+            self.stdout.write(
+                    self.style.ERROR(
+                            'Unable to connect to jenkins server at: '
+                            '{}{}{}'.format(config['jenkins_url'],
+                                            os.linesep,
+                                            str(e))))

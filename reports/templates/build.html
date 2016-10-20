@@ -1,0 +1,47 @@
+{%  extends 'base.html' %}
+
+{% block content %}
+    <h2>Tests Report</h2>
+    <br/>
+    <h3>Build #{{ build_number }}</h3>
+    <table class="table">
+        <tr class="table-header">
+            <td>Total</td>
+            <td>Passed</td>
+            <td>Failed</td>
+            <td>Skipped</td>
+            <td>Full Log</td>
+        </tr>
+        <tr>
+            <td class="text-primary">{{ report.total_count }}</td>
+            <td class="text-success">{{ report.passed_count }} ({{ report.passed_percentage }} %)</td>
+            <td class="text-danger">{{ report.failed_count }} ({{ report.failed_percentage }} %)</td>
+            <td class="text-warning">{{ report.skipped_count }}</td>
+            <td><button type="button" class="btn btn-primary" onclick="window.open('{{ full_build_log_url }}', '_blank');">View</button></td>
+        </tr>
+    </table>
+    <h3>Test Suites</h3>
+    {% for suite in report.suites %}
+        <br/>
+        <h4><strong>{{ suite.name }}</strong></h4>
+        <table class="table table-hover table-condensed table-striped table-bordered">
+        <tr class="table-header {% if suite.passed_count == suite.total_count %}success text-success{% else %}danger text-danger{% endif %}">
+            <td class="status">Status</td>
+            <td class="name">Name</td>
+            <td class="class-name">Class Name</td>
+            <td class="duration">Duration</td>
+        </tr>
+        {% for case in suite.cases %}
+            <tr class="clickable-table-row {% if case.passed %}text-success{% elif case.failed %}text-danger{% elif case.skipped %}text-warning{% endif %}"
+                onclick="window.location = '{% url 'test' job_name build_number suite.name case.id %}';">
+                <td class="status">
+                    {{ case.status }}
+                </td>
+                <td class="name">{{ case.name }}</td>
+                <td class="case-name">{{ case.className }}</td>
+                <td class="duration">{{ case.duration }}</td>
+            </tr>
+        {% endfor %}
+        </table>
+    {% endfor %}
+{% endblock %}

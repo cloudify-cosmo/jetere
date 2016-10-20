@@ -8,8 +8,3 @@ from . import models
 @admin.register(models.Configuration)
 class ConfigurationAdmin(admin.ModelAdmin):
     pass
-
-
-@admin.register(models.Job)
-class JobAdmin(admin.ModelAdmin):
-    pass

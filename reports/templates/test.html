@@ -1,0 +1,67 @@
+{%  extends 'base.html' %}
+
+{% block content %}
+    <h2>Test Info</h2>
+    <br/>
+    <h3>{{ case.name }}</h3>
+    <table class="table">
+        <tr class="table-header">
+            <td>Status</td>
+            <td>Class name</td>
+            <td>Build number</td>
+            <td>Duration</td>
+        </tr>
+        <tr>
+            <td>{{ case.status }}</td>
+            <td>{{ case.className }}</td>
+            <td>{{ build_number }}</td>
+            <td>{{ case.duration }}</td>
+        </tr>
+    </table>
+
+    {% if case.errorDetails %}
+        <table class="table">
+            <tr class="table-header table-condensed {% if case.passed %}success text-success{% else %}danger text-danger{% endif %}">
+                <td>Error Details</td>
+            </tr>
+            <tr>
+                <td><samp>{{ case.errorDetails | linebreaks }}</samp></td>
+            </tr>
+        </table>
+    {% endif %}
+
+    {% if case.errorStackTrace %}
+        <table class="table">
+            <tr class="table-header table-condensed {% if case.passed %}success text-success{% else %}danger text-danger{% endif %}">
+                <td>Error Stack Trace</td>
+            </tr>
+            <tr>
+                <td><samp>{{ case.errorStackTrace | linebreaks }}</samp></td>
+            </tr>
+        </table>
+    {% endif %}
+
+    {% if case.stdout %}
+        <table class="table">
+            <tr class="table-header table-condensed {% if case.passed %}success text-success{% else %}danger text-danger{% endif %}">
+                <td>stdout</td>
+            </tr>
+            <tr>
+                <td><samp>{{ case.stdout | linebreaks }}</samp></td>
+            </tr>
+        </table>
+    {% endif %}
+
+    {% if case.stderr %}
+        <table class="table">
+            <tr class="table-header table-condensed {% if case.passed %}success text-success{% else %}danger text-danger{% endif %}">
+                <td>stderr</td>
+            </tr>
+            <tr>
+                <td><samp>{{ case.stderr | linebreaks }}</samp></td>
+            </tr>
+        </table>
+    {% endif %}
+
+
+{% endblock %}
