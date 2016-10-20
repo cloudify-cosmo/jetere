@@ -1,6 +1,18 @@
-{%  extends 'base.html' %}
+{% extends 'base.html' %}
 
 {% block content %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#showOnlyFailedTests").change(function() {
+                if($(this).is(":checked")) {
+                    $(".passed-element").hide();
+                } else {
+                    $(".passed-element").show();
+                };
+            });
+        });
+    </script>
+
     <h2>Tests Report</h2>
     <br/>
     <h3>Build #{{ build_number }}</h3>
@@ -21,6 +33,12 @@
         </tr>
     </table>
     <h3>Test Suites</h3>
+    <div class="checkbox">
+        <label>
+            <input id="showOnlyFailedTests" type="checkbox">Show only failed tests
+        </label>
+    </div>
+    </p>
     {% for suite in report.suites %}
         <br/>
         <h4><strong>{{ suite.name }}</strong></h4>
@@ -32,7 +50,7 @@
             <td class="duration">Duration</td>
         </tr>
         {% for case in suite.cases %}
-            <tr class="clickable-table-row {% if case.passed %}text-success{% elif case.failed %}text-danger{% elif case.skipped %}text-warning{% endif %}"
+            <tr class="clickable-table-row {% if case.passed %}passed-element text-success{% elif case.failed %}text-danger{% elif case.skipped %}text-warning{% endif %}"
                 onclick="window.location = '{% url 'test' job_name build_number suite.name case.id %}';">
                 <td class="status">
                     {{ case.status }}
