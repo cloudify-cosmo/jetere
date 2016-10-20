@@ -13,6 +13,9 @@ def load_jenkins_configuration_from_file():
     if os.path.exists(CONFIG_FILE_PATH):
         with open(CONFIG_FILE_PATH, 'r') as f:
             return json.load(f)
+    else:
+        raise IOError('Jenkins configuration file not found: {}'.format(
+                CONFIG_FILE_PATH))
 
 
 class Command(BaseCommand):
