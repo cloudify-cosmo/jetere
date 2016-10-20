@@ -138,7 +138,10 @@ def build(request, job_name, build_number):
         return page_not_found(
                 request, ValueError('Unknown job: {}'.format(job_name)))
     full_job_name = '{}/{}'.format(job_def['name'], job_name)
-    report = jenkins_client().get_tests_report(full_job_name, build_number)
+    try:
+        report = jenkins_client().get_tests_report(full_job_name, build_number)
+    except jenkins.JenkinsResourceNotFound:
+        report = None
     return {
         'job_name': job_name,
         'build_number': build_number,
