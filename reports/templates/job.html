@@ -1,24 +1,30 @@
 {%  extends 'base.html' %}
 
 {% block content %}
+    <script type="text/javascript">
+        function loadJobBuilds() {
+            $.ajax({
+                url: "ajax",
+                success: function(result) {
+                    $("#job-builds").html(result);
+                }
+            });
+        }
+        $(document).ready(function() {
+            loadJobBuilds();
+            setInterval(function() {
+                loadJobBuilds();
+            }, 10000);
+        });
+    </script>
+
     <h2>Builds</h2>
     <br/>
-    <table class="table table-hover table-striped">
-        <tr class="table-header">
-            <td>#</td>
-            <td>Result</td>
-            <td>Started By</td>
-            <td>Started At</td>
-            <td style="width: 10%;">Duration</td>
-        </tr>
-        {% for build in builds %}
-            <tr class="builds-table-row {% if build.passed %}text-success{% elif build.failed %}text-danger{% elif build.building %}text-info{% endif %}" onclick="window.location = '{% url 'build' job.name build.number %}';">
-                <td>{{ build.number }}</td>
-                <td>{% if build.building %}BUILDING{% else %}{{ build.result }}{% endif %}</td>
-                <td>{{ build.started_by }}</td>
-                <td>{{ build.started_at | date:'H:i - d/m/Y' }}</td>
-                <td>{{ build.duration_str }}</td>
-            </tr>
-        {% endfor %}
-    </table>
+    <div id="job-builds">
+        <p>Loading job builds...</p>
+        <div class="progress">
+            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+            </div>
+        </div>
+    </div>
 {% endblock %}

@@ -1,0 +1,31 @@
+{% block content %}
+    <table class="table table-hover table-striped">
+        <tr class="table-header">
+            <td></td>
+            <td>#</td>
+            <td>Result</td>
+            <td>Started By</td>
+            <td>Success Rate</td>
+            <td>Started At</td>
+            <td>Duration</td>
+        </tr>
+        {% for build in builds %}
+            <tr class="builds-table-row {% if build.passed %}text-success{% elif build.failed %}text-danger{% elif build.building %}text-info info{% endif %}" onclick="window.location = '{% url 'build' job.name build.number %}';">
+                <td>{% if build.building %}<span class="glyphicon glyphicon-cog glyphicon-refresh-animate"></span>{% endif %}</td>
+                <td>{{ build.number }}</td>
+                <td>{% if build.building %}BUILDING{% else %}{{ build.result }}{% endif %}</td>
+                <td>{{ build.started_by }}</td>
+                <td>
+                    {% if build.report %}
+                        {{ build.report.passed_percentage }} % ({{ build.report.passed_count }}/{{ build.report.total_count }})
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>{{ build.started_at | date:'H:i - d/m/Y' }}</td>
+                <td>{{ build.duration_str }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+{% endblock %}

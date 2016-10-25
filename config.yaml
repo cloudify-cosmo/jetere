@@ -1,0 +1,42 @@
+
+enable_caching: no # requires a running memcached server
+
+jenkins:
+  username: _
+  password: _
+  url: 'http://jenkins-master.gspaces.com:8080'
+  job_definitions:
+  - name: 'dir_system-tests'
+    regex: 'system-tests.*'
+  - name: 'dir_integration_tests'
+    regex: 'Integration-tests'
+  - name: 'dir_integration_tests'
+    regex: 'Docl-image-build'
+
+circleci:
+  projects:
+  - 'cloudify-cosmo/cloudify-manager-blueprints'
+  - 'cloudify-cosmo/cloudify-packager'
+  - 'cloudify-cosmo/cloudify-amqp-influxdb'
+  - 'cloudify-cosmo/cloudify-system-tests'
+  - 'cloudify-cosmo/cloudify-hello-world-example'
+  - 'cloudify-cosmo/cloudify-nodecellar-example'
+  - 'cloudify-cosmo/cloudify-plugins-common'
+  - 'cloudify-cosmo/cloudify-script-plugin'
+  - 'cloudify-cosmo/cloudify-fabric-plugin'
+  - 'cloudify-cosmo/cloudify-diamond-plugin'
+  - 'cloudify-cosmo/wagon'
+  - 'cloudify-cosmo/cloudify-host-pool-plugin'
+  - 'cloudify-cosmo/cloudify-cli'
+  - 'cloudify-cosmo/cloudify-manager'
+  - 'cloudify-cosmo/cloudify-rest-client'
+  - 'cloudify-cosmo/cloudify-dsl-parser'
+  - 'cloudify-cosmo/cloudify-agent'
+  - 'cloudify-cosmo/cloudify-openstack-plugin'
+  - 'cloudify-cosmo/cloudify-vsphere-plugin'
+  - 'cloudify-cosmo/cloudify-gcp-plugin'
+  - 'cloudify-cosmo/cloudify-azure-plugin'
+   #'cloudify-agent-packager'
+   #'cloudify-cosmo/cloudify-aws-plugin'
+
+

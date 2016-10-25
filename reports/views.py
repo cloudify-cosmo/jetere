@@ -1,39 +1,22 @@
-
-from functools import wraps
+import logging
 import re
+from functools import wraps
 
+from django import http
 from django.shortcuts import render
 from django.views.defaults import page_not_found
-from django import http
 
 from . import models
-from jetere import jenkins
+from . import jenkins
+from .jenkins import client as jenkins_client
+from .config import instance as config
 
-from reports.management.commands import configure
+logger = logging.getLogger('django')
 
-
-jenkins_jobs_def = [
-    {
-        'name': 'dir_system-tests',
-        'regex': r'system-tests.*',
-    },
-    {
-        'name': 'dir_integration_tests',
-        'regex': r'Integration-tests'
-    }
-
-]
+job_definitions = config['jenkins']['job_definitions']
 
 DEFAULT_MAX_BUILDS = 10
 NIGHTLY_BUILD_SEARCH_LIMIT = 10
-
-
-def jenkins_client():
-    jenkins_config = configure.load_jenkins_configuration_from_file()
-    jenkins_client = jenkins.Client(jenkins_config['jenkins_url'],
-                                    jenkins_config['jenkins_username'],
-                                    jenkins_config['jenkins_password'])
-    return jenkins_client
 
 
 def _get_jobs():
@@ -43,10 +26,10 @@ def _get_jobs():
 def _get_default_template_vars():
     # TODO: auto inject view argument as template args
     jobs_list = []
-    for x in jenkins_jobs_def:
-        job = jenkins_client().get_job(x['name'])
+    for x in job_definitions:
+        job = jenkins_client.get_job(x['name'])
         nested_jobs = [a['name'] for a in list_nested_jobs(job, x['regex'])]
-        jobs = [jenkins_client().get_job('{}/{}'.format(job['name'], a)) for a in nested_jobs]
+        jobs = [jenkins_client.get_job('{}/{}'.format(job['name'], a)) for a in nested_jobs]
         jobs_list.extend(jobs)
     return {
             'jobs_list': jobs_list
@@ -78,7 +61,7 @@ def list_nested_jobs(job, regex):
 
 
 def find_job_definition(job_name):
-    for job_def in jenkins_jobs_def:
+    for job_def in job_definitions:
         if re.match(job_def['regex'], job_name):
             return job_def
     return None
@@ -92,10 +75,10 @@ def find_nightly_build(job):
     full_job_name = '{}/{}'.format(job_def['name'], job_name)
     build_numbers = [x['number'] for x in job['builds']]
     for build_number in build_numbers[:NIGHTLY_BUILD_SEARCH_LIMIT]:
-        b = jenkins_client().get_build(full_job_name, build_number)
-        if b.started_by == jenkins.TIMER_USER:
+        b = jenkins_client.get_build(full_job_name, build_number)
+        if b.started_by in (jenkins.TIMER_USER, jenkins.SCM_CHANGE):
             try:
-                b['report'] = jenkins_client().get_tests_report(full_job_name,
+                b['report'] = jenkins_client.get_tests_report(full_job_name,
                                                               build_number)
             except jenkins.JenkinsResourceNotFound:
                 pass
@@ -108,7 +91,6 @@ def index(request, jobs_list, **_):
     for j in jobs_list:
         nightly_build = find_nightly_build(j)
         if nightly_build:
-            print(nightly_build.keys())
             j['nightly_build'] = nightly_build
 
 
@@ -119,11 +101,11 @@ def job(request, job_name):
         return page_not_found(
                 request, ValueError('Unknown job: {}'.format(job_name)))
     full_job_name = '{}/{}'.format(job_def['name'], job_name)
-    job = jenkins_client().get_job(full_job_name)
+    job = jenkins_client.get_job(full_job_name)
     last_build_number = job['lastBuild']['number']
-    builds = jenkins_client().get_builds(full_job_name,
-                                       last_build_number,
-                                       size=DEFAULT_MAX_BUILDS)
+    builds = jenkins_client.get_builds(full_job_name,
+                                         last_build_number,
+                                         size=DEFAULT_MAX_BUILDS)
     return {
         'job': job,
         'job_name': job_name,
@@ -139,14 +121,14 @@ def build(request, job_name, build_number):
                 request, ValueError('Unknown job: {}'.format(job_name)))
     full_job_name = '{}/{}'.format(job_def['name'], job_name)
     try:
-        report = jenkins_client().get_tests_report(full_job_name, build_number)
+        report = jenkins_client.get_tests_report(full_job_name, build_number)
     except jenkins.JenkinsResourceNotFound:
         report = None
     return {
         'job_name': job_name,
         'build_number': build_number,
         'report': report,
-        'full_build_log_url': jenkins_client().get_full_build_log_url(
+        'full_build_log_url': jenkins_client.get_full_build_log_url(
                 full_job_name, build_number)
     }
 
@@ -165,7 +147,7 @@ def test(request, job_name, build_number, suite_name, case_index):
         return page_not_found(
                 request, ValueError('Unknown job: {}'.format(job_name)))
     full_job_name = '{}/{}'.format(job_def['name'], job_name)
-    report = jenkins_client().get_tests_report(full_job_name, build_number)
+    report = jenkins_client.get_tests_report(full_job_name, build_number)
     suite = find_suite(report, suite_name)
     if not suite:
         return page_not_found(

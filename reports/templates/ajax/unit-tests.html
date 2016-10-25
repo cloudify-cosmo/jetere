@@ -1,0 +1,23 @@
+{% block content %}
+    <table class="table table-hover">
+        <tr class="table-header">
+            <td>Repository Name</td>
+            <td>Build Number</td>
+            <td>Status</td>
+            <td>Committer</td>
+            <td>Start Time</td>
+            <td>Duration</td>
+        </tr>
+        {% for build in cci_builds %}
+            <tr class="clickable-table-row {% if build.passed %}text-success{% elif build.failed %}text-danger danger{% elif build.status == 'running' %}text-info info{% endif %}"
+                onclick="window.location = '{{ build.build_url }}';">
+                <td>{{ build.reponame }}</td>
+                <td>{{ build.build_num }}</td>
+                <td>{{ build.status }}</td>
+                <td>{{ build.committer_name }}</td>
+                <td>{{ build.start_time }}</td>
+                <td>{{ build.duration_str }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

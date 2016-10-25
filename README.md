@@ -16,7 +16,7 @@ pip install -r requirements.txt
 
 ## Configuration
 
-Run `./manage.py configure` for configuring jenkins.
+Edit `config.yaml` and save it to `~/.jetere/config.yaml`.
 
 # Run the server
 ```
@@ -24,5 +24,3 @@ Run `./manage.py configure` for configuring jenkins.
 ```
 
 Happily browse to http://localhost:8000 and view your test reports.
-
-

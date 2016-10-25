@@ -41,27 +41,29 @@
         </div>
         </p>
         {% for suite in report.suites %}
-            <br/>
-            <h4><strong>{{ suite.name }}</strong></h4>
-            <table class="table table-hover table-condensed table-striped table-bordered">
-            <tr class="table-header {% if suite.passed_count == suite.total_count %}success text-success{% else %}danger text-danger{% endif %}">
-                <td class="status">Status</td>
-                <td class="name">Name</td>
-                <td class="class-name">Class Name</td>
-                <td class="duration">Duration</td>
-            </tr>
-            {% for case in suite.cases %}
-                <tr class="clickable-table-row {% if case.passed %}passed-element text-success{% elif case.failed %}text-danger{% elif case.skipped %}text-warning{% endif %}"
-                    onclick="window.location = '{% url 'test' job_name build_number suite.name case.id %}';">
-                    <td class="status">
-                        {{ case.status }}
-                    </td>
-                    <td class="name">{{ case.name }}</td>
-                    <td class="case-name">{{ case.className }}</td>
-                    <td class="duration">{{ case.duration }}</td>
+            <div class="{% if suite.passed_count == suite.total_count %}passed-element{% endif %}">
+                <br/>
+                <h4><strong>{{ suite.name }}</strong></h4>
+                <table class="table table-hover table-condensed table-striped table-bordered">
+                <tr class="table-header {% if suite.passed_count == suite.total_count %}success text-success{% else %}danger text-danger{% endif %}">
+                    <td class="status">Status</td>
+                    <td class="name">Name</td>
+                    <td class="class-name">Class Name</td>
+                    <td class="duration">Duration</td>
                 </tr>
-            {% endfor %}
-            </table>
+                {% for case in suite.cases %}
+                    <tr class="clickable-table-row {% if case.passed %}passed-element text-success{% elif case.failed %}text-danger{% elif case.skipped %}text-warning{% endif %}"
+                        onclick="window.location = '{% url 'test' job_name build_number suite.name case.id %}';">
+                        <td class="status">
+                            {{ case.status }}
+                        </td>
+                        <td class="name">{{ case.name }}</td>
+                        <td class="case-name">{{ case.className }}</td>
+                        <td class="duration">{{ case.duration_str }}</td>
+                    </tr>
+                {% endfor %}
+                </table>
+            </div>
         {% endfor %}
     {% else %}
         <p>A report is not available for this build.</p>

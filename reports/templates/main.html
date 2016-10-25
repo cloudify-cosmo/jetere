@@ -1,6 +1,23 @@
 {%  extends 'base.html' %}
 
 {% block content %}
+    <script type="text/javascript">
+        function loadUnitTests() {
+            $.ajax({
+                url: "ajax",
+                success: function(result) {
+                    $("#unit-tests").html(result);
+                }
+            });
+        }
+        $(document).ready(function() {
+            loadUnitTests();
+            setInterval(function() {
+                loadUnitTests();
+            }, 60000 * 5);
+        });
+    </script>
+
     <h2>Latest Nightly Builds</h2>
     <br/>
     <table class="table table-hover">
@@ -34,6 +51,12 @@
     </table>
     <br/>
     <h2>Unit Tests</h2>
-    <p>...</p>
-
+    <br/>
+    <div id="unit-tests">
+        <p>Loading unit tests report...</p>
+        <div class="progress">
+            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+            </div>
+        </div>
+    </div>
 {% endblock %}

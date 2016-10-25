@@ -29,7 +29,6 @@
                 <a class="navbar-brand" href="#">
                     <img alt="Brand" src="{% static 'images/cfy.png' %}">
                 </a>
-{#                <p class="navbar-text">CFY</p>#}
             </div>
             <ul class="nav navbar-nav">
                 <li class="{% if not job_name %}active{% endif %}"><a href="{% url 'index' %}">Home</a></li>
@@ -43,26 +42,7 @@
         </div>
     </nav>
 
-{#    <div class="page-header">#}
-{#        <h2><a href="{% url 'index' %}">cfy-jetere!</a></h2>#}
-{#    </div>#}
-
-{#    <div id="jobs">#}
-{#        {% for job in jobs_list %}#}
-{#            <a href="{% url 'builds2' job.name %}">#}
-{#                <span class="label label-primary">{{ job.displayName }}</span>#}
-{#            </a>#}
-{#        {% endfor %}#}
-{#    </div>#}
-
     <div id="content">
-        {% if current_job %}
-        <ol class="breadcrumb">
-            <li><a href="{% url 'job' current_job.id %}">{{ current_job.name }}</a></li>
-            {% if current_build %}<li><a href="{% url 'tests' current_build.id %}">{{ current_build.number }}</a></li>{% endif %}
-            {% if current_test %}<li><a href="{% url 'logs' current_test.id %}">{{ current_test.name }}</a></li>{% endif %}
-        </ol>
-        {% endif %}
         {% block content %}
         {% endblock %}
     </div>
