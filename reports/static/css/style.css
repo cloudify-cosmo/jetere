@@ -22,12 +22,6 @@ body {
     text-decoration: none;
 }
 
-
-.left-menu {
-    padding-left: 25px;
-    /*border: 1px solid blue;*/
-}
-
 .builds-table-row:hover, .tests-table-row:hover, .clickable-table-row:hover {
     cursor: pointer;
 }
@@ -78,15 +72,6 @@ mark.danger {
     display: inline;
 }
 
-td.status, td.duration {
-    width: 6%;
-    text-align: center;
-}
-
-td.name {
-    width: 30%;
-}
-
 .suite {
     padding: 5px 10px 5px 10px;
 }
@@ -111,4 +96,16 @@ td.name {
 @-moz-keyframes spinm {
     from { -moz-transform: rotate(0deg);}
     to { -moz-transform: rotate(360deg);}
+}
+
+td.col-xsmall {
+    width: 120px;
+}
+
+td.col-small {
+    width: 200px;
+}
+
+td.col-medium {
+    width: 500px;
 }

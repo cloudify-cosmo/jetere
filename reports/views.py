@@ -113,15 +113,73 @@ def job(request, job_name):
     }
 
 
+def get_last_timer_builds(full_job_name, last_build_number):
+    timer_builds = []
+    counter = 0
+    while len(timer_builds) < 5:
+        last_build_number -= 1
+        if last_build_number == 0:
+            break
+        counter += 1
+        b = jenkins_client.get_build(full_job_name, last_build_number)
+        if b and b.is_timer_build:
+            timer_builds.append(b)
+        if counter == 100:
+            raise RuntimeError(
+                    'get_last_timer_builds exceeded 100 build retrievals!')
+    return timer_builds
+
+
+def generate_tests_history(report, nightly_builds):
+    tests = {}
+
+    def _collect_tests_from_suite(suite, build_number):
+        for case in suite.get('cases', []):
+            test_name = '{}.{}.{}'.format(suite['name'], case['className'], case['name'])
+            if test_name not in tests:
+                tests[test_name] = []
+            tests[test_name].append({
+                'build_number': build_number,
+                'case': case
+            })
+
+    for b in nightly_builds:
+        if b.report:
+            for s in b.report.get('suites', []):
+                _collect_tests_from_suite(s, b['number'])
+
+    for s in report.get('suites', []):
+        for c in s.get('cases', []):
+            test_name = '{}.{}.{}'.format(s['name'], c['className'], c['name'])
+            setattr(c, 'history', tests.get(test_name))
+
+
 @render_me('build.html')
 def build(request, job_name, build_number):
+    build_number = int(build_number)
     job_def = find_job_definition(job_name)
     if not job_def:
         return page_not_found(
                 request, ValueError('Unknown job: {}'.format(job_name)))
     full_job_name = '{}/{}'.format(job_def['name'], job_name)
     try:
+        logger.info('Getting test report for {}/{}'.format(
+                full_job_name, build_number))
         report = jenkins_client.get_tests_report(full_job_name, build_number)
+        logger.info('Getting last timer builds for {}/{}'.format(
+                full_job_name, build_number))
+        nightly_builds = get_last_timer_builds(full_job_name, build_number)
+        for b in nightly_builds:
+            logger.info('Getting test report for timer build {}/{}'.format(
+                    full_job_name, b['number']))
+            try:
+                r = jenkins_client.get_tests_report(full_job_name, b['number'])
+                setattr(b, 'report', r)
+            except jenkins.JenkinsResourceNotFound:
+                setattr(b, 'report', None)
+        logger.info('Generating tests history for test report {}/{}'.format(
+                full_job_name, build_number))
+        generate_tests_history(report, nightly_builds)
     except jenkins.JenkinsResourceNotFound:
         report = None
     return {

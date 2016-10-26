@@ -38,6 +38,8 @@ _enable_caching = config['enable_caching']
 # TODO: memcached should be configurable.
 # TODO: validate configuration after loading from yaml file
 # TODO: when rebuilding a timer build, the causes contains both timer and the user who triggered the rebuild.
+# TODO: browsing to an in progress build should show the link to view the build log.
+# TODO: when calculating success rate use tree for getting test reports.
 
 
 class _Object(dict):
@@ -71,6 +73,10 @@ class Build(_Object):
                 elif 'Started by' in description:
                     return cause.get('userName', 'Unknown')
         return 'Unknown'
+
+    @property
+    def is_timer_build(self):
+        return self.started_by in (TIMER_USER, SCM_CHANGE)
 
     @property
     def duration_str(self):
@@ -125,6 +131,7 @@ class Suite(_Object):
         super(Suite, self).__init__(data)
         self['cases'] = [
             Case(x, i) for i, x in enumerate(self.get('cases', []))]
+        self['cases'] = self._filter_duplicate_cases()
 
     @property
     def passed_count(self):
@@ -141,6 +148,19 @@ class Suite(_Object):
     @property
     def total_count(self):
         return len(self['cases'])
+
+    def _filter_duplicate_cases(self):
+        """This may occur when a test fails in test code or setup/teardown etc.
+        Duplicates cause a confusion so its better to filter and have only
+        one record per test, even if a failure will be missing."""
+        tests = set()
+        no_dups = []
+        for case in self['cases']:
+            test_name = '{}.{}'.format(case['className'], case['name'])
+            if test_name not in tests:
+                no_dups.append(case)
+                tests.add(test_name)
+        return no_dups
 
 
 class Report(_Object):
