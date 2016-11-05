@@ -27,15 +27,17 @@ def unit_tests(request, **_):
 def job_builds(request, job_name, **_):
     job_def = find_job_definition(job_name)
     full_job_name = '{}/{}'.format(job_def['name'], job_name)
-    job = jenkins_client.get_job(full_job_name)
+    job = jenkins_client.get_job(full_job_name, tree='name,lastBuild[number]')
     last_build_number = job['lastBuild']['number']
     builds = jenkins_client.get_builds(full_job_name,
                                        last_build_number,
                                        size=DEFAULT_MAX_BUILDS)
     for build in builds:
         try:
-            build['report'] = jenkins_client.get_tests_report(full_job_name,
-                                                              build['number'])
+            build['report'] = jenkins_client.get_tests_report(
+                    full_job_name,
+                    build['number'],
+                    tree='passCount,failCount,skipCount')
         except jenkins.JenkinsResourceNotFound:
             pass
 

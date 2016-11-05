@@ -1,6 +1,7 @@
 
 import json
 from functools import wraps
+import logging
 import zlib
 
 from pymemcache.client.base import Client as MemcachedClient
@@ -12,12 +13,14 @@ memcached = MemcachedClient(('localhost', 11211), timeout=1)
 _enable_caching = config['enable_caching']
 
 
+logger = logging.getLogger('django')
+
+
 def cache_result(result_class,
                  key=None,
                  expire=0,
                  max_result_size=1000000,
                  **kw):
-
     def decorator(func):
         @wraps(func)
         def _wrapper(*args, **kwargs):
@@ -27,10 +30,15 @@ def cache_result(result_class,
                 values = [str(x) for x in args[1:]]
                 memcached_key = '{}-{}'.format(result_class.__name__.lower(),
                                                '-'.join(values))
+                if kwargs.get('tree'):
+                    memcached_key += '-tree={}'.format(kwargs['tree'])
+            logger.info('Reading from cache: key = "%s"', memcached_key)
             result = memcached.get(memcached_key) if _enable_caching else None
             if result:
+                logger.info('key = "%s" found in cache!', memcached_key)
                 as_dict = json.loads(zlib.decompress(result))
             else:
+                logger.info('key = "%s" not found in cache :(', memcached_key)
                 as_dict = func(*args, **kwargs)
                 if _enable_caching:
                     compressed_data = zlib.compress(json.dumps(as_dict))

@@ -58,7 +58,9 @@
                         <td class="clickable-table-row" onclick="window.location = '{% url 'test' job_name build_number suite.name case.id %}'">
                             {{ case.name }}
                         </td>
-                        <td>{{ case.className }}</td>
+                        <td class="clickable-table-row" onclick="window.location = '{% url 'test' job_name build_number suite.name case.id %}'">
+                            {{ case.className }}
+                        </td>
                         <td class="text-center">
                             {% for result in case.history %}
                                 <a href="{% url 'build' job_name result.build_number %}">

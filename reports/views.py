@@ -162,10 +162,13 @@ def build(request, job_name, build_number):
         return page_not_found(
                 request, ValueError('Unknown job: {}'.format(job_name)))
     full_job_name = '{}/{}'.format(job_def['name'], job_name)
+    report_tree = 'passCount,failCount,skipCount,suites[name,cases[name,className,status,duration]]'  # NOQA
     try:
         logger.info('Getting test report for {}/{}'.format(
                 full_job_name, build_number))
-        report = jenkins_client.get_tests_report(full_job_name, build_number)
+        report = jenkins_client.get_tests_report(full_job_name,
+                                                 build_number,
+                                                 tree=report_tree)
         logger.info('Getting last timer builds for {}/{}'.format(
                 full_job_name, build_number))
         nightly_builds = get_last_timer_builds(full_job_name, build_number)
@@ -173,7 +176,9 @@ def build(request, job_name, build_number):
             logger.info('Getting test report for timer build {}/{}'.format(
                     full_job_name, b['number']))
             try:
-                r = jenkins_client.get_tests_report(full_job_name, b['number'])
+                r = jenkins_client.get_tests_report(full_job_name,
+                                                    b['number'],
+                                                    tree=report_tree)
                 setattr(b, 'report', r)
             except jenkins.JenkinsResourceNotFound:
                 setattr(b, 'report', None)

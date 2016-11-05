@@ -25,19 +25,16 @@ SCM_CHANGE = 'SCM Change'
 # TODO: in builds view, don't show the success rate column if not relevant
 # TODO: consider removing "@" from test names in scheduler implementation.
 # TODO: add a full log link in test view.
-# TODO: add a show only nightly builds in tests view.
 # TODO: in index, refresh nightly builds.
 # TODO: in index, add spinner for in-progress builds.
 # TODO: circleci private repository.
 # TODO: validate configuration after loading from yaml file
 # TODO: when rebuilding a timer build, the causes contains both timer and the user who triggered the rebuild.
 # TODO: browsing to an in progress build should show the link to view the build log.
-# TODO: when calculating success rate use tree for getting test reports.
-# TODO: change job link in nightly view to builds list instead of report.
 # TODO: builds list pagination.
 # TODO: it should be possible to display build logs for builds with no reports.
 # TODO: unit tests start time format.
-# TODO: cache circleci results.
+# TODO: cache menu items.
 
 
 class _Object(dict):
@@ -168,19 +165,19 @@ class Report(_Object):
 
     @property
     def passed_count(self):
-        return sum(x.passed_count for x in self['suites'])
+        return self['passCount']
 
     @property
     def failed_count(self):
-        return sum(x.failed_count for x in self['suites'])
+        return self['failCount']
 
     @property
     def skipped_count(self):
-        return sum(x.skipped_count for x in self['suites'])
+        return self['skipCount']
 
     @property
     def total_count(self):
-        return sum(x.total_count for x in self['suites'])
+        return self.passed_count + self.failed_count + self.skipped_count
 
     @property
     def passed_percentage(self):
