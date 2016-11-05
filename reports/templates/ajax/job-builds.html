@@ -10,7 +10,7 @@
             <td>Duration</td>
         </tr>
         {% for build in builds %}
-            <tr class="builds-table-row {% if build.passed %}text-success{% elif build.failed %}text-danger{% elif build.building %}text-info info{% endif %}" onclick="window.location = '{% url 'build' job.name build.number %}';">
+            <tr class="builds-table-row {% if build.passed %}text-success{% elif build.failed %}text-danger{% elif build.building %}text-info info{% endif %} {% if not build.is_timer_build %}user-build{% endif %}" onclick="window.location = '{% url 'build' job.name build.number %}';">
                 <td>{% if build.building %}<span class="glyphicon glyphicon-cog glyphicon-refresh-animate"></span>{% endif %}</td>
                 <td>{{ build.number }}</td>
                 <td>{% if build.building %}BUILDING{% else %}{{ build.result }}{% endif %}</td>

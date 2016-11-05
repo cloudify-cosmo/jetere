@@ -18,16 +18,8 @@ circleci_projects = config['circleci']['projects']
 
 def unit_tests(request, **_):
     circleci = CircleCIClient()
-    circleci_builds = []
-    for project in circleci_projects:
-        try:
-            builds = circleci.get_build(project)
-            if len(builds) > 0:
-                circleci_builds.append(builds[0])
-            circleci_builds.sort(key=lambda x: x['status'])
-        except Exception as e:
-            logger.error('Error getting circleci build for project '
-                         '"{}": {}'.format(project, str(e)))
+    circleci_builds = circleci.get_builds(circleci_projects)
+    circleci_builds.sort(key=lambda x: x['status'])
     return render(request, 'ajax/unit-tests.html', {
         'cci_builds': circleci_builds})
 

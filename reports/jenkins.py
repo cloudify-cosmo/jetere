@@ -1,18 +1,16 @@
 
 import datetime
-from functools import wraps
 import json
 import logging
 import math
 import os
-import zlib
 
-from pymemcache.client.base import Client as MemcachedClient
 import requests
 
 from django.utils import timezone
 
 from reports.config import instance as config
+from reports import cache
 
 PASSED_STRINGS = ('PASSED', 'FIXED', 'SUCCESS')
 FAILED_STRINGS = ('FAILED', 'REGRESSION', 'FAILURE')
@@ -21,25 +19,25 @@ SKIPPED_STRING = 'SKIPPED'
 TIMER_USER = 'Timer'
 SCM_CHANGE = 'SCM Change'
 
-_enable_caching = config['enable_caching']
 
 # TODO: redirect to an error page if jenkins is not accessible.
 # TODO: cache the knowledge of no testReports for builds as otherwise 404 queries are performed with no reason
 # TODO: in builds view, don't show the success rate column if not relevant
-# TODO: merge tests with the same name (also has an effect on duration calculation) see system-tests #733
 # TODO: consider removing "@" from test names in scheduler implementation.
-# TODO: create a global configuration file for jenkins & circleci.
-# TODO: add a 5 last builds test history in tests list view.
 # TODO: add a full log link in test view.
 # TODO: add a show only nightly builds in tests view.
 # TODO: in index, refresh nightly builds.
 # TODO: in index, add spinner for in-progress builds.
 # TODO: circleci private repository.
-# TODO: memcached should be configurable.
 # TODO: validate configuration after loading from yaml file
 # TODO: when rebuilding a timer build, the causes contains both timer and the user who triggered the rebuild.
 # TODO: browsing to an in progress build should show the link to view the build log.
 # TODO: when calculating success rate use tree for getting test reports.
+# TODO: change job link in nightly view to builds list instead of report.
+# TODO: builds list pagination.
+# TODO: it should be possible to display build logs for builds with no reports.
+# TODO: unit tests start time format.
+# TODO: cache circleci results.
 
 
 class _Object(dict):
@@ -201,47 +199,6 @@ class JenkinsResourceNotFound(IOError):
         super(JenkinsResourceNotFound, self).__init__(*args, **kwargs)
 
 
-memcached = MemcachedClient(('localhost', 11211), timeout=1)
-
-
-def cache_result(result_class, expire=0, max_result_size=1000000, **kw):
-
-    def decorator(func):
-        @wraps(func)
-        def _wrapper(*args, **kwargs):
-            values = [str(x) for x in args[1:]]
-            key = '{}-{}'.format(result_class.__name__.lower(),
-                                 '-'.join(values))
-            result = memcached.get(key) if _enable_caching else None
-            if result:
-                as_dict = json.loads(zlib.decompress(result))
-            else:
-                as_dict = func(*args, **kwargs)
-                if _enable_caching:
-                    compressed_data = zlib.compress(json.dumps(as_dict))
-                    cache = len(compressed_data) < max_result_size
-                    if cache:
-                        cache_if = {k.replace('cache_if_', ''): v
-                                    for k, v in kw.items()
-                                    if k.startswith('cache_if')}
-                        cache = True
-                        if cache_if:
-                            for k, v in cache_if.items():
-                                if as_dict[k] != v:
-                                    cache = False
-                                    break
-                        if cache:
-                            memcached.set(
-                                    key,
-                                    zlib.compress(json.dumps(as_dict)),
-                                    expire=expire)
-            return result_class(as_dict)
-
-        return _wrapper
-
-    return decorator
-
-
 class Client(object):
 
     def __init__(self, base_url, username=None, password=None):
@@ -249,7 +206,6 @@ class Client(object):
         self._username = username
         self._password = password
         self._logger = logging.getLogger('django')
-        self._memcached = MemcachedClient(('localhost', 11211), timeout=1)
 
     def _query(self, job_name, tree=None, timeout=10):
         resource = '{}{}/api/json{}'.format(
@@ -275,7 +231,7 @@ class Client(object):
                 json.dumps(result_json, indent=2)))
         return result_json
 
-    @cache_result(result_class=Job, expire=5*60)
+    @cache.cache_result(result_class=Job, expire=5*60)
     def get_job(self, job_name='', tree=None):
         """Get job. Since jobs has a builds field and these may change
         frequently, job responses are cached for 5 minutes."""
@@ -283,7 +239,7 @@ class Client(object):
             job_name = '/job/{}'.format('/job/'.join(job_name.split('/')))
         return self._query(job_name, tree=tree)
 
-    @cache_result(result_class=Build, cache_if_building=False)
+    @cache.cache_result(result_class=Build, cache_if_building=False)
     def get_build(self, job_name, build_number, tree=None):
         """Get build. Only completed builds are cached as in-progress builds
         whould always be retrieved from jenkins in order to monitor their
@@ -292,7 +248,7 @@ class Client(object):
                 '/job/'.join(job_name.split('/')), build_number)
         return self._query(resource_name, tree=tree)
 
-    @cache_result(result_class=Report)
+    @cache.cache_result(result_class=Report)
     def get_tests_report(self, job_name, build_number, tree=None):
         """Get test report. Since memcached's default max object size is 1mb
         we use compression and cache only less than 1mb compressed reports."""

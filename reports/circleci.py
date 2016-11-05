@@ -1,7 +1,10 @@
 
 import datetime
+import logging
 
 import requests
+
+from reports import cache
 
 CIRCLE_BUILD_URL = 'https://circleci.com/api/v1.1/project/github/{project}/tree/{branch}'  # NOQA
 
@@ -30,6 +33,7 @@ class CircleCIClient(object):
 
     def __init__(self):
         super(CircleCIClient, self).__init__()
+        self._logger = logging.getLogger('django')
 
     def get_build(self, project, branch='master'):
         url = CIRCLE_BUILD_URL.format(project=project, branch=branch)
@@ -39,3 +43,17 @@ class CircleCIClient(object):
         raise requests.HTTPError(
                 'HTTP request error [url={}, status_code={}]'.format(
                         url, r.status_code))
+
+    @cache.cache_result(Build, key='circleci', expire=60*5)
+    def get_builds(self, projects, branch='master'):
+        result = []
+        for project in projects:
+            try:
+                builds = self.get_build(project, branch=branch)
+                if len(builds) > 0:
+                    result.append(builds[0])
+            except Exception as e:
+                # TODO: errors should be added to the list with a failure entry.
+                self._logger.error('Error getting circleci build for project '
+                                   '"{}": {}'.format(project, str(e)))
+        return result

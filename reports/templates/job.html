@@ -7,18 +7,38 @@
                 url: "ajax",
                 success: function(result) {
                     $("#job-builds").html(result);
+                    if ($("#showOnlyTimerBuilds").is(":checked")) {
+                        $(".user-build").hide();
+                    }
                 }
             });
         }
         $(document).ready(function() {
+            $("#showOnlyTimerBuilds").change(function() {
+                if ($(this).is(":checked")) {
+                    $(".user-build").hide();
+                } else {
+                    $(".user-build").show();
+                };
+            });
+
             loadJobBuilds();
             setInterval(function() {
                 loadJobBuilds();
             }, 10000);
         });
+
+
+
     </script>
 
     <h2>Builds</h2>
+    <br/>
+    <div class="checkbox">
+        <label>
+            <input id="showOnlyTimerBuilds" type="checkbox">Show only timer builds
+        </label>
+    </div>
     <br/>
     <div id="job-builds">
         <p>Loading job builds...</p>
