@@ -32,7 +32,6 @@ SCM_CHANGE = 'SCM Change'
 # TODO: when rebuilding a timer build, the causes contains both timer and the user who triggered the rebuild.
 # TODO: browsing to an in progress build should show the link to view the build log.
 # TODO: builds list pagination.
-# TODO: it should be possible to display build logs for builds with no reports.
 # TODO: unit tests start time format.
 # TODO: cache menu items.
 

@@ -10,12 +10,14 @@
             <td>Class name</td>
             <td>Build number</td>
             <td>Duration</td>
+            <td>Console Output</td>
         </tr>
         <tr>
             <td>{{ case.status }}</td>
             <td>{{ case.className }}</td>
             <td>{{ build_number }}</td>
             <td>{{ case.duration }}</td>
+            <td><button type="button" class="btn btn-primary" onclick="window.open('{{ full_build_log_url }}', '_blank');">View</button></td>
         </tr>
     </table>
 

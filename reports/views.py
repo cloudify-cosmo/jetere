@@ -220,5 +220,8 @@ def test(request, job_name, build_number, suite_name, case_index):
         'job_name': job_name,
         'build_number': build_number,
         'suite_name': suite_name,
-        'case': case
+        'case': case,
+        'full_build_log_url': jenkins_client.get_full_build_log_url(
+                full_job_name, build_number)
+
     }

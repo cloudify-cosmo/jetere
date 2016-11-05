@@ -23,7 +23,7 @@
                 <td>Passed</td>
                 <td>Failed</td>
                 <td>Skipped</td>
-                <td>Full Log</td>
+                <td>Console Output</td>
             </tr>
             <tr>
                 <td class="text-primary">{{ report.total_count }}</td>
@@ -75,6 +75,7 @@
             </div>
         {% endfor %}
     {% else %}
-        <p>A report is not available for this build.</p>
+        <p>Test report is not available for this build.</p>
+        <p><button type="button" class="btn btn-primary" onclick="window.open('{{ full_build_log_url }}', '_blank');">Console Output</button></p>
     {% endif %}
 {% endblock %}
