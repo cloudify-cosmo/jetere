@@ -31,7 +31,7 @@
         </tr>
         {% load app_filters %}
         {% for job in jobs_list %}
-            <tr class="{% if job.nightly_build and not job.nightly_build.building %}clickable-table-row{% endif %}
+            <tr class="{% if job.nightly_build %}clickable-table-row{% endif %}
                 {% if job.nightly_build.passed %}text-success success{% elif job.nightly_build.failed %}text-danger danger{% elif job.nightly_build.building %}text-info info{% else %}text-warning warning{% endif %}"
                 {% if job.nightly_build %}onclick="window.location = '{% url 'job' job.name %}';"{% endif %}>
                 <td>{{ job.displayName | pretty_string }}</td>

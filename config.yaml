@@ -9,9 +9,9 @@ jenkins:
   - name: 'dir_system-tests'
     regex: 'system-tests.*'
   - name: 'dir_integration_tests'
-    regex: 'Integration-tests'
+    regex: 'run-integration-tests'
   - name: 'dir_integration_tests'
-    regex: 'Docl-image-build'
+    regex: 'docl_image_builder'
 
 circleci:
   projects:
