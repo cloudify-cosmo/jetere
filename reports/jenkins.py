@@ -123,9 +123,10 @@ class Case(_Object):
 class Suite(_Object):
     def __init__(self, data):
         super(Suite, self).__init__(data)
+        filtered_cases = self._filter_duplicate_cases(self.get('cases', []))
         self['cases'] = [
-            Case(x, i) for i, x in enumerate(self.get('cases', []))]
-        self['cases'] = self._filter_duplicate_cases()
+            Case(x, i) for i, x in enumerate(filtered_cases)]
+        # TODO: cases matching should be done based on test name
 
     @property
     def passed_count(self):
@@ -143,13 +144,14 @@ class Suite(_Object):
     def total_count(self):
         return len(self['cases'])
 
-    def _filter_duplicate_cases(self):
+    @staticmethod
+    def _filter_duplicate_cases(cases):
         """This may occur when a test fails in test code or setup/teardown etc.
         Duplicates cause a confusion so its better to filter and have only
         one record per test, even if a failure will be missing."""
         tests = set()
         no_dups = []
-        for case in self['cases']:
+        for case in cases:
             test_name = '{}.{}'.format(case['className'], case['name'])
             if test_name not in tests:
                 no_dups.append(case)
