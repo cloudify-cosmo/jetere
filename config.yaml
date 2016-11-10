@@ -9,7 +9,7 @@ jenkins:
   - name: 'dir_system-tests'
     regex: 'system-tests.*'
   - name: 'dir_integration_tests'
-    regex: 'run-integration-tests'
+    regex: 'integration-tests'
   - name: 'dir_integration_tests'
     regex: 'docl_image_builder'
 

@@ -74,7 +74,12 @@ class Build(_Object):
 
     @property
     def duration_str(self):
-        duration = datetime.timedelta(milliseconds=self.get('duration'))
+        d = self.get('duration', 0)
+        if d == 0:
+            duration = timezone.make_aware(
+                    datetime.datetime.now()) - self.started_at
+        else:
+            duration = datetime.timedelta(milliseconds=self.get('duration'))
         return str(duration).split('.')[0]
 
     @property
