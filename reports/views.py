@@ -210,8 +210,9 @@ def get_manager_logs_for_test(build_number, case):
         build_number=build_number,
         class_name=case.short_class_name,
         test_name=case['name'])
-    response = urllib2.urlopen(url)
-    if response.code != 200:
+    try:
+        response = urllib2.urlopen(url)
+    except urllib2.HTTPError as e:
         return None
     else:
         return response.read()
