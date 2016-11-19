@@ -124,6 +124,10 @@ class Case(_Object):
         duration = datetime.timedelta(seconds=self.get('duration'))
         return str(duration).split('.')[0]
 
+    @property
+    def short_class_name(self):
+        return self['className'].split('.')[-1]
+
 
 class Suite(_Object):
     def __init__(self, data):

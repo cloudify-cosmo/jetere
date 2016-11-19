@@ -1,6 +1,7 @@
 {%  extends 'base.html' %}
 
 {% block content %}
+
     <h2>Test Info</h2>
     <br/>
     <h3>{{ case.name }}</h3>
@@ -20,6 +21,16 @@
             <td><button type="button" class="btn btn-primary" onclick="window.open('{{ full_build_log_url }}', '_blank');">View</button></td>
         </tr>
     </table>
+
+    {% if manager_logs %}
+    <div id="manager-logs">
+        <h4>Cloudify manager logs:</h4>
+        <div id="manager-logs-content">
+            {% autoescape off %}{{ manager_logs }}{% endautoescape %}
+        </div>
+        <br/>
+    </div>
+    {% endif %}
 
     {% if case.errorDetails %}
         <table class="table">

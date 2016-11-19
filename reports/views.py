@@ -2,6 +2,8 @@ import logging
 import re
 from functools import wraps
 
+import urllib2
+
 from django import http
 from django.shortcuts import render
 from django.views.defaults import page_not_found
@@ -203,6 +205,18 @@ def find_suite(report, suite_name):
     return None
 
 
+def get_manager_logs_for_test(build_number, case):
+    url = 'http://cloudify-tests-logs.s3.amazonaws.com/{build_number}/{build_number}-{class_name}-{test_name}/links.html'.format(
+        build_number=build_number,
+        class_name=case.short_class_name,
+        test_name=case['name'])
+    response = urllib2.urlopen(url)
+    if response.code != 200:
+        return None
+    else:
+        return response.read()
+
+
 @render_me('test.html')
 def test(request, job_name, build_number, suite_name, case_index):
     job_def = find_job_definition(job_name)
@@ -222,6 +236,6 @@ def test(request, job_name, build_number, suite_name, case_index):
         'suite_name': suite_name,
         'case': case,
         'full_build_log_url': jenkins_client.get_full_build_log_url(
-                full_job_name, build_number)
-
+                full_job_name, build_number),
+        'manager_logs': get_manager_logs_for_test(build_number, case)
     }
