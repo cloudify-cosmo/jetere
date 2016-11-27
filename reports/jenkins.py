@@ -121,8 +121,11 @@ class Case(_Object):
 
     @property
     def duration_str(self):
-        duration = datetime.timedelta(seconds=self.get('duration'))
-        return str(duration).split('.')[0]
+        return str(self.duration).split('.')[0]
+
+    @property
+    def duration(self):
+        return datetime.timedelta(seconds=self.get('duration'))
 
     @property
     def short_class_name(self):
@@ -152,6 +155,20 @@ class Suite(_Object):
     @property
     def total_count(self):
         return len(self['cases'])
+
+    @property
+    def total_duration(self):
+        total = None
+        for c in self['cases']:
+            if total is None:
+                total = c.duration
+            else:
+                total += c.duration
+        return total
+
+    @property
+    def total_duration_str(self):
+        return str(self.total_duration).split('.')[0]
 
     @staticmethod
     def _filter_duplicate_cases(cases):
