@@ -18,6 +18,7 @@ SKIPPED_STRING = 'SKIPPED'
 
 TIMER_USER = 'Timer'
 SCM_CHANGE = 'SCM Change'
+BUILD_FLOW = 'Build Flow'
 
 
 # TODO: redirect to an error page if jenkins is not accessible.
@@ -62,6 +63,8 @@ class Build(_Object):
                 description = cause['shortDescription']
                 if 'Started by timer' in description:
                     return TIMER_USER
+                if 'Started by build flow' in description:
+                    return BUILD_FLOW
                 elif 'Started by an SCM change' in description:
                     return SCM_CHANGE
                 elif 'Started by' in description:
@@ -70,7 +73,7 @@ class Build(_Object):
 
     @property
     def is_timer_build(self):
-        return self.started_by in (TIMER_USER, SCM_CHANGE)
+        return self.started_by in (TIMER_USER, SCM_CHANGE, BUILD_FLOW)
 
     @property
     def duration_str(self):
