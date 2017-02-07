@@ -17,7 +17,7 @@ logger = logging.getLogger('django')
 
 job_definitions = config['jenkins']['job_definitions']
 
-DEFAULT_MAX_BUILDS = 10
+DEFAULT_MAX_BUILDS = 20
 NIGHTLY_BUILD_SEARCH_LIMIT = 10
 
 
