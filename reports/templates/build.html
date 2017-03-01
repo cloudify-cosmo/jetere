@@ -55,10 +55,10 @@
                 {% for case in suite.cases %}
                     <tr class="{% if case.passed %}passed-element text-success{% elif case.failed %}text-danger{% elif case.skipped %}text-warning{% endif %}">
                         <td class="text-center">{{ case.status }}</td>
-                        <td class="clickable-table-row" onclick="window.location = '{% url 'test' job_name build_number suite.name case.id %}'">
+                        <td class="clickable-table-row" onclick="window.open('{% url 'test' job_name build_number suite.name case.id %}', '_blank')">
                             {{ case.name }}
                         </td>
-                        <td class="clickable-table-row" onclick="window.location = '{% url 'test' job_name build_number suite.name case.id %}'">
+                        <td class="clickable-table-row" onclick="window.open('{% url 'test' job_name build_number suite.name case.id %}', '_blank')">
                             {{ case.className }}
                         </td>
                         <td class="text-center">
