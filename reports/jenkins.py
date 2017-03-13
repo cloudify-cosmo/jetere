@@ -16,7 +16,7 @@ PASSED_STRINGS = ('PASSED', 'FIXED', 'SUCCESS')
 FAILED_STRINGS = ('FAILED', 'REGRESSION', 'FAILURE')
 SKIPPED_STRING = 'SKIPPED'
 
-TIMER_USER = 'Timer'
+TIMER_USER = 'Nightly'
 SCM_CHANGE = 'SCM Change'
 BUILD_FLOW = 'Build Flow'
 
@@ -67,8 +67,11 @@ class Build(_Object):
                     return BUILD_FLOW
                 elif 'Started by an SCM change' in description:
                     return SCM_CHANGE
+                elif 'Nightly' in description:
+                    return TIMER_USER
                 elif 'Started by' in description:
                     return cause.get('userName', 'Unknown')
+
         return 'Unknown'
 
     @property
