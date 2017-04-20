@@ -4,7 +4,7 @@ enable_caching: no # requires a running memcached server
 jenkins:
   username: _
   password: _
-  url: 'http://jenkins-master.gspaces.com:8080'
+  url: 'http://34.248.253.114:8080'
   job_definitions:
   - name: 'dir_system-tests'
     regex: 'system-tests.*'
